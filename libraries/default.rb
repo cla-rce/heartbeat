@@ -2,7 +2,7 @@
 # Cookbook Name:: heartbeat
 # Library:: default
 #
-# Copyright 2009-2012, Opscode, Inc.
+# Copyright 2009-2012, Chef Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,14 +32,14 @@ class Chef
         @sub_resources = []
       end
 
-      def default_node(default_node=nil)
-        set_or_return(:default_node, default_node, :kind_of => String)
+      def default_node(default_node = nil)
+        set_or_return(:default_node, default_node, kind_of: String)
       end
 
       def method_missing(name, *args, &block)
         # Build the set of names to check for a valid resource
         lookup_path = ["heartbeat_#{name}"]
-        run_context.cookbook_collection.each do |cookbook_name, cookbook_ver|
+        run_context.cookbook_collection.each do |cookbook_name, _cookbook_ver|
           lookup_path << "#{cookbook_name}_heartbeat_#{name}"
         end
         resource = nil
@@ -49,6 +49,7 @@ class Chef
             Chef::Log.debug "Trying to load heartbeat resource #{resource_name} for #{name}"
             resource = super(resource_name.to_sym, args.first || name, &block)
             break
+          # rubocop:disable Lint/UselessAssignment
           rescue NameError => e
             # Works on any MRI ruby
             if e.name == resource_name.to_sym || e.inspect =~ /\b#{resource_name}\b/
@@ -58,8 +59,8 @@ class Chef
             end
           end
         end
-        raise NameError, "No resource found for #{name}. Tried #{lookup_path.join(', ')}" unless resource
-        raise ArgumentError, "Resource instance #{resource} is not a valid heartbeat resource" unless resource.respond_to?(:to_resource)
+        fail NameError, "No resource found for #{name}. Tried #{lookup_path.join(', ')}" unless resource
+        fail ArgumentError, "Resource instance #{resource} is not a valid heartbeat resource" unless resource.respond_to?(:to_resource)
         provider = resource.provider || begin
           Chef::Platform.provider_for_resource(resource)
         rescue ArgumentError => e
@@ -70,7 +71,6 @@ class Chef
         @sub_resources << resource
         resource
       end
-
     end
   end
 end

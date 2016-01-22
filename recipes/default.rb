@@ -2,7 +2,7 @@
 # Cookbook Name:: heartbeat
 # Recipe:: default
 #
-# Copyright 2009-2011, Opscode, Inc.
+# Copyright 2009-2015, Chef Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,18 +17,22 @@
 # limitations under the License.
 #
 
-%w{ heartbeat heartbeat-dev }.each do |pkg|
+case node['platform_family']
+when 'rhel', 'fedora'
+  package_list = ['heartbeat', 'heartbeat-devel']
+when 'debian'
+  package_list = ['heartbeat', 'heartbeat-dev']
+end
+package_list.each do |pkg|
   package pkg do
     action :install
   end
 end
 
-service "heartbeat" do
+service 'heartbeat' do
   supports(
-    :restart => true,
-    :status => true
+    restart: true,
+    status: true
   )
   action :enable
 end
-
-  

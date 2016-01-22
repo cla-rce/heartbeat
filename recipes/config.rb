@@ -2,7 +2,7 @@
 # Cookbook Name:: heartbeat
 # Recipe:: config
 #
-# Copyright 2009-2011, Opscode, Inc.
+# Copyright 2009-2015, Chef Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 # limitations under the License.
 #
 
-include_recipe "heartbeat"
+include_recipe 'heartbeat'
 
-heartbeat "heartbeat" do
+heartbeat 'heartbeat' do
   auto_failback node['heartbeat']['config']['auto_failback']
   autojoin node['heartbeat']['config']['autojoin']
   compression node['heartbeat']['config']['compression']
