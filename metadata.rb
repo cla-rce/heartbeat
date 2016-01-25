@@ -8,6 +8,8 @@ version           '1.0.1'
 
 recipe 'heartbeat', 'Installs, but does not configure, heartbeat'
 
+chef_version '>= 12.1' if respond_to?(:chef_version)
+
 %w( debian ubuntu centos redhat amazon scientific fedora oracle ).each do |os|
   supports os
 end

@@ -17,17 +17,20 @@
 # limitations under the License.
 #
 
+raise "Cookbook 'heartbeat' requires Chef >= 12.1." if node['chef_packages']['chef']['version'].to_f < 12.1
+
 case node['platform_family']
 when 'rhel', 'fedora'
   package_list = ['heartbeat', 'heartbeat-devel']
 when 'debian'
   package_list = ['heartbeat', 'heartbeat-dev']
 end
-package_list.each do |pkg|
-  package pkg do
-    action :install
-  end
-end
+
+# Must install all packages simultaneously on v5 RHEL-based OSes, otherwise
+# we get an installation conflict between heartbeat-pils (depended on by
+# hearbeat) and heartbeat-devel. Requires the multi-package installation syntax
+# introduced in Chef 12.1.
+package package_list
 
 service 'heartbeat' do
   supports(

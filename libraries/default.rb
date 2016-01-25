@@ -21,7 +21,7 @@ class Chef
   class Resource
     class HeartbeatResourceGroup
       include Chef::Mixin::ParamsValidate
-      include Chef::Mixin::RecipeDefinitionDSLCore
+      include Chef::DSL::Recipe
 
       attr_reader :run_context, :cookbook_name, :recipe_name, :sub_resources
 
@@ -42,7 +42,9 @@ class Chef
         run_context.cookbook_collection.each do |cookbook_name, _cookbook_ver|
           lookup_path << "#{cookbook_name}_heartbeat_#{name}"
         end
+
         resource = nil
+
         # Try to find our resource
         lookup_path.each do |resource_name|
           begin
@@ -59,13 +61,16 @@ class Chef
             end
           end
         end
+
         fail NameError, "No resource found for #{name}. Tried #{lookup_path.join(', ')}" unless resource
         fail ArgumentError, "Resource instance #{resource} is not a valid heartbeat resource" unless resource.respond_to?(:to_resource)
+
         provider = resource.provider || begin
-          Chef::Platform.provider_for_resource(resource)
+          resource.provider_for_action(:nothing)
         rescue ArgumentError => e
           nil
         end
+
         # As a default this has #action_nothing on it
         resource.provider Chef::Provider::HeartbeatNull unless provider
         @sub_resources << resource
